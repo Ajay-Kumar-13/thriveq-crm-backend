@@ -1,0 +1,12 @@
+# secrets — never commit
+certs/
+.env
+*.pem
+*.p12
+
+# IDE
+.idea/
+
+# gradle / build
+.gradle/
+build/
