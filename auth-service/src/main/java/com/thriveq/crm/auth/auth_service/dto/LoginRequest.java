@@ -5,6 +5,5 @@ import lombok.Data;
 @Data
 public class LoginRequest {
     public String email;
-    public boolean active;
     public String password;
 }

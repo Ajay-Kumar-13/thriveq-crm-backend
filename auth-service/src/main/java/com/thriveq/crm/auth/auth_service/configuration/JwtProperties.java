@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "jwt")
 @Data
 public class JwtProperties {
-    public String privateKeyPath;
-    public String kid;
-    public String audience;
-    public long ttlSeconds;
-    public String issuer;
+    private String privateKeyPath;
+    private String kid;
+    private String audience;
+    private long ttlSeconds;
+    private String issuer;
 }

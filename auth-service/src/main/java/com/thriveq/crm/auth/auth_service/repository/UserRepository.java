@@ -15,15 +15,15 @@ public interface UserRepository extends R2dbcRepository<User, UUID> {
     @Modifying
     @Query("""
         UPDATE auth.users
-        SET failed_count = failed_count + 1,
-            locked_until = CASE WHEN failed_count + 1 >= 5
+        SET failedCount = failedCount + 1,
+            lockedUntil = CASE WHEN failedCount + 1 >= 5
                                 THEN now() + interval '15 minutes'
-                                ELSE locked_until END
+                                ELSE lockedUntil END
         WHERE id = :id
         """)
     Mono<Void> recordFailure(UUID id);
 
     @Modifying
-    @Query("UPDATE auth.users SET failed_count = 0, locked_until = NULL WHERE id = :id")
+    @Query("UPDATE auth.users SET failedCount = 0, lockedUntil = NULL WHERE id = :id")
     Mono<Void> resetFailures(UUID id);
 }

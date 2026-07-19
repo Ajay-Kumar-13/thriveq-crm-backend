@@ -1,5 +1,6 @@
 package com.thriveq.crm.auth.auth_service.controller;
 
+import com.thriveq.crm.auth.auth_service.configuration.JwtProperties;
 import com.thriveq.crm.auth.auth_service.dto.LoginRequest;
 import com.thriveq.crm.auth.auth_service.dto.TokenResponse;
 import com.thriveq.crm.auth.auth_service.model.User;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.Map;
@@ -25,8 +27,9 @@ public class AuthController {
     private final RoleRepository roles;
     private final PasswordEncoder encoder;
     private final JwtIssuer issuer;
+    private final JwtProperties props;
 
-    @GetMapping("/auth/health")
+    @GetMapping("/health")
     public Mono<String> health() { return Mono.just("ok"); }
 
     @PostMapping("/login")
@@ -35,21 +38,26 @@ public class AuthController {
                 .flatMap(user -> {
                     if (!user.isActive() || isLocked(user))
                         return Mono.just(deny());
-                    if (!encoder.matches(req.getPassword(), user.getPassword_hash()))
-                        return users.recordFailure(user.getId()).thenReturn(deny());
 
-                    return users.resetFailures(user.getId())
-                            .then(roles.findRoleNamesByUserId(user.getId()).collectList())
-                            .map(roleNames -> ResponseEntity.ok(new TokenResponse(
-                                    issuer.issue(user.getId(), user.getEmail(), roleNames),
-                                    "Bearer", 900)));
+                    return Mono.fromCallable(() -> encoder.matches(req.getPassword(), user.getPasswordHash()))
+                            .subscribeOn(Schedulers.boundedElastic())
+                            .flatMap(matches -> {
+                                if (!matches)
+                                    return users.recordFailure(user.getId()).thenReturn(deny());
+                                return users.resetFailures(user.getId())
+                                        .then(roles.findRoleNamesByUserId(user.getId()).collectList())
+                                        .map(roleNames -> ResponseEntity.ok(new TokenResponse(
+                                                issuer.issue(user.getId(), user.getEmail(), roleNames),
+                                                "Bearer", props.getTtlSeconds())));
+                            });
                 })
                 .defaultIfEmpty(deny())
                 // no user found: still hash, to keep timing flat
                 .switchIfEmpty(Mono.fromCallable(() -> {
                     encoder.encode(req.getPassword());
                     return deny();
-                }));
+                }).subscribeOn(Schedulers.boundedElastic())
+                );
     }
 
     private ResponseEntity<?> deny() {
@@ -57,6 +65,6 @@ public class AuthController {
     }
 
     private boolean isLocked(User u) {
-        return u.getLocked_until() != null && u.getLocked_until().toInstant().isAfter(Instant.now());
+        return u.getLockedUntil() != null && u.getLockedUntil().toInstant().isAfter(Instant.now());
     }
 }
