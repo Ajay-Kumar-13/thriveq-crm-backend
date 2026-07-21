@@ -1,4 +1,4 @@
-package com.thriveq.auth_service;
+package com.thriveq.crm.auth.auth_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
