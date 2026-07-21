@@ -9,6 +9,7 @@ import com.thriveq.crm.auth.auth_service.repository.UserRepository;
 import com.thriveq.crm.auth.auth_service.util.JwtIssuer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final UserRepository users;
@@ -65,6 +67,6 @@ public class AuthController {
     }
 
     private boolean isLocked(User u) {
-        return u.getLockedUntil() != null && u.getLockedUntil().toInstant().isAfter(Instant.now());
+        return u.getLockedUntil() != null && u.getLockedUntil().isAfter(Instant.now());
     }
 }

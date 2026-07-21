@@ -23,16 +23,20 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'  // for BCrypt only
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'com.nimbusds:nimbus-jose-jwt:9.40'
+
+//    Flyway
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
+    implementation 'org.springframework.boot:spring-boot-starter-flyway'
+    runtimeOnly   'org.postgresql:postgresql'                                // Flyway is JDBC
+    implementation 'org.springframework:spring-jdbc'                          // Flyway needs it
+
     runtimeOnly   'org.postgresql:r2dbc-postgresql'
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
-    runtimeOnly   'org.postgresql:postgresql'                                // Flyway is JDBC
-    implementation 'org.springframework:spring-jdbc'                          // Flyway needs it
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation 'io.projectreactor.tools:blockhound:1.0.17.RELEASE'
 }
 
 tasks.named('test') {

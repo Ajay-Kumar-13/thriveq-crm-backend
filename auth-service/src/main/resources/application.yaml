@@ -1,19 +1,21 @@
 spring:
   application:
     name: auth-service
-  server:
-    port: 9100
   r2dbc:
-    url: r2dbc:postgresql://${DB_HOST:localhost}:5432/crm
+    url: r2dbc:postgresql://${DB_HOST:localhost}:5432/crm?schema=auth
     username: ${DB_USER:crm}
     password: ${DB_PASSWORD}
   flyway:
     enabled: true
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/crm
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/crm?schema=auth
     user: ${DB_USER:crm}
+    # Make sure DB_PASSWORD is set in the shell you run this from, or as env variable
     password: ${DB_PASSWORD}
     locations: classpath:db/migration
     schemas: auth,crm
+
+server:
+  port: 9100
 
 jwt:
   private-key-path: ${JWT_PRIVATE_KEY_PATH:/home/ajay-kumar/Desktop/CRM/crm/certs/jwt-private-pkcs8.pem}

@@ -5,6 +5,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 @Table("users")
@@ -22,8 +23,8 @@ public class User {
     private Integer failedCount;
 
     @Column("locked_until")
-    private Timestamp lockedUntil;
+    private Instant lockedUntil;
 
     @Column("created_at")
-    private Timestamp createdAt;
+    private Instant createdAt;
 }

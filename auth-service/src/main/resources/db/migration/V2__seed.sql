@@ -24,7 +24,7 @@ WHERE r.name = 'AGENT' AND p.name IN ('lead:read', 'lead:write');
 INSERT INTO auth.users (id, email, password_hash)
 VALUES ('11111111-1111-1111-1111-111111111111',
         'admin@crm.local',
-        '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy');
+        '$2a$10$zRX/.djVICT2a3rEpePCmOsx9UFQH4c03n9B7zGf5epxstRDkl5ym');
 
 INSERT INTO auth.user_roles (user_id, role_id)
 SELECT '11111111-1111-1111-1111-111111111111', id FROM auth.roles WHERE name = 'ADMIN';
