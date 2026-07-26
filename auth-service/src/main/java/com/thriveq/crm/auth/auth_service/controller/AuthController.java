@@ -40,7 +40,14 @@ public class AuthController {
                 .flatMap(user -> {
                     if (!user.isActive() || isLocked(user))
                         return Mono.just(deny());
-
+                    /**
+                     * subscribeOn doesn't create threads — it chooses which existing thread pool the work runs on. Th
+                     * The threads already exist; you're routing to them.
+                     *
+                     * Schedulers.boundedElastic() is a pre-existing pool of threads that Reactor maintains, built for blocking work.
+                     * subscribeOn(Schedulers.boundedElastic()) says "run this chain's work on a thread from that pool," not "spin up a new thread."
+                     * The pool creates and reuses threads as needed (that's the "elastic" part), but you're not creating them — you're borrowing one.
+                     */
                     return Mono.fromCallable(() -> encoder.matches(req.getPassword(), user.getPasswordHash()))
                             .subscribeOn(Schedulers.boundedElastic())
                             .flatMap(matches -> {

@@ -1,5 +1,7 @@
 package com.thriveq.crm.external_authortization.controller;
 
+import com.thriveq.crm.external_authortization.service.RolePermissionCache;
+import com.thriveq.crm.external_authortization.util.PolicyEngine;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -23,7 +25,9 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ExtAuthzController {
 
+    private final PolicyEngine policyEngine;
     private final ReactiveJwtDecoder decoder;
+    private final RolePermissionCache cache;
     /**
      * 1. You need control over the status, and ResponseEntity is how you set it in Spring.
             The second reason is headers. On allow, you must return x-user-id and x-user-roles — Envoy copies those upstream
@@ -50,12 +54,30 @@ public class ExtAuthzController {
                     if (roles == null) {
                         roles = List.of();
                     }
+
+                    Optional<String> required =  policyEngine.requiredPermissions(method, path);
+                    if (required.isEmpty()) {
+                        log.info("DENY rid={} sub={} path=no_rule {} {}", rid, jwt.getSubject(), method, path);
+                        return status(403);
+                    }
+
+                    Set<String> granted = cache.permissionFor(roles);
+                    if (!granted.contains(required.get())) {
+                        log.info("DENY rid={} sub={} roles={} needed={} {} {}",
+                                rid, jwt.getSubject(), roles, required.get(), method, path);
+                        return status(403);
+                    }
+
                     log.info("ALLOW rid={} sub={} roles={}", rid, jwt.getSubject(), roles);
                     return ResponseEntity.
                             ok()
                             .header("x-user-id", jwt.getSubject())
                             .header("x-user-roles", String.join(",", roles))
                             .<Void>build();
+                })
+                .onErrorResume(JwtException.class, e-> {
+                    log.info("DENY rid={} reason=bad_token: {}", rid, e.getMessage());
+                    return Mono.just(status(401));
                 });
 
     }
