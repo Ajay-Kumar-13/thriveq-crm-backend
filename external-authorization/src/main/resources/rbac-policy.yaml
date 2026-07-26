@@ -1,0 +1,16 @@
+# src/main/resources/rbac-policy.yml
+# This file is the CATALOG of permissions. A permission not named here
+# guards nothing. A permission named here must exist in auth.permissions.
+
+rules:
+  # specific before general — first match wins
+  - { method: "*",      path: "/api/admin/**",  permission: "rbac:manage" }
+
+  - { method: "GET",    path: "/api/leads",     permission: "lead:read"   }
+  - { method: "POST",   path: "/api/leads",     permission: "lead:write"  }
+  - { method: "GET",    path: "/api/leads/*",   permission: "lead:read"   }
+  - { method: "PUT",    path: "/api/leads/*",   permission: "lead:write"  }
+  - { method: "PATCH",  path: "/api/leads/*",   permission: "lead:write"  }
+  - { method: "DELETE", path: "/api/leads/*",   permission: "lead:delete" }
+
+# Anything not matched above is DENIED. Do not add a catch-all.
