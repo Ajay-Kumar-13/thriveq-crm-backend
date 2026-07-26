@@ -1,4 +1,4 @@
-package com.thriveq.crm.external_authortization;
+package com.thriveq.crm.external_authorization;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

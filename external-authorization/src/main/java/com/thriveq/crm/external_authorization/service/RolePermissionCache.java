@@ -1,4 +1,4 @@
-package com.thriveq.crm.external_authortization.service;
+package com.thriveq.crm.external_authorization.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +51,7 @@ public class RolePermissionCache {
             SELECT r.name AS role, p.name as perm
             FROM auth.role_permissions rp
             JOIN auth.roles r ON r.id = rp.role_id
-            JOIN auth.permissions p ON p.id = p.permission_id
+            JOIN auth.permissions p ON p.id = rp.permission_id
             """
         )
                 .fetch()

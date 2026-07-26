@@ -1,4 +1,4 @@
-package com.thriveq.crm.external_authortization;
+package com.thriveq.crm.external_authorization;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

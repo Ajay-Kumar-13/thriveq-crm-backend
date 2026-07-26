@@ -1,4 +1,4 @@
-package com.thriveq.crm.external_authortization.config;
+package com.thriveq.crm.external_authorization.config;
 
 import java.util.List;
 
@@ -9,5 +9,5 @@ import java.util.List;
  * constructor, getters, equals, hashCode, toString. You write one line instead of twenty
  */
 public record RbacPolicy(List<Rule> rules) {
-    public record Rule(String method, String path, String permissions) {}
+    public record Rule(String method, String path, String permission) {}
 }

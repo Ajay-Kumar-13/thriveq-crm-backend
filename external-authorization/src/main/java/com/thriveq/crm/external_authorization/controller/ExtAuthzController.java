@@ -1,17 +1,14 @@
-package com.thriveq.crm.external_authortization.controller;
+package com.thriveq.crm.external_authorization.controller;
 
-import com.thriveq.crm.external_authortization.service.RolePermissionCache;
-import com.thriveq.crm.external_authortization.util.PolicyEngine;
+import com.thriveq.crm.external_authorization.service.RolePermissionCache;
+import com.thriveq.crm.external_authorization.util.PolicyEngine;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;

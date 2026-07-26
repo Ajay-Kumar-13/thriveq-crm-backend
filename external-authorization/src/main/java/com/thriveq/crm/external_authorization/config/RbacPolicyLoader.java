@@ -1,4 +1,4 @@
-package com.thriveq.crm.external_authortization.config;
+package com.thriveq.crm.external_authorization.config;
 
 
 import org.springframework.context.annotation.Bean;
