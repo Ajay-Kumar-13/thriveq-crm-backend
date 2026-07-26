@@ -39,7 +39,7 @@ public class CatalogValidator {
 
         Set<String> orphaned = new HashSet<>(inDb);
         orphaned.removeAll(inPolicy);
-        if (!missing.isEmpty()) {
+        if (!orphaned.isEmpty()) {
             log.info("Permissions in DB guard no endpoint {}", orphaned);
         }
     }

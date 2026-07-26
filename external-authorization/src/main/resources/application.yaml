@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: external-authortization
+    name: external-authorization
   r2dbc:
     url: r2dbc:postgresql://${DB_HOST:localhost}:5432/crm
     username: ${DB_USER:crm}
@@ -13,15 +13,8 @@ spring:
     #Container (Postgres) → Compose reads .env → gets DB_PASSWORD automatically.
     #Your terminal (bootRun) → no Compose → must export DB_PASSWORD yourself.
     password: ${DB_PASSWORD}
-  cache:
-    type: caffeine
-    caffeine:
-      spec: maximumSize=10,expireAfterWrite=30s
 
 jwt:
   public-key-path: ${JWT_PRIVATE_KEY_PATH:/home/ajay-kumar/Desktop/CRM/crm/certs/jwt-public.pem}
   issuer: crm-auth
   audience: crm-api
-
-policy:
-  path: classpath:rbac-policy.yml

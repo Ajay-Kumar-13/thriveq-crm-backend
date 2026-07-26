@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class ExternalAuthortizationApplication {
+public class ExternalAuthorizationApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ExternalAuthortizationApplication.class, args);
+		SpringApplication.run(ExternalAuthorizationApplication.class, args);
 	}
 
 }
