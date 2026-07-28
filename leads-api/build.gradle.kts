@@ -18,9 +18,14 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    compileOnly ("org.projectlombok:lombok:1.18.34")
+    annotationProcessor ("org.projectlombok:lombok:1.18.34")
+    implementation ("org.springframework.boot:spring-boot-starter-data-r2dbc")
+    runtimeOnly   ("org.postgresql:r2dbc-postgresql")
 }
 
 tasks.withType<Test> {
