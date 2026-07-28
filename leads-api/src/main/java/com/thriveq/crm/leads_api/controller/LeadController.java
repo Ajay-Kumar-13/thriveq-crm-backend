@@ -27,7 +27,7 @@ public class LeadController {
 
     // No @PreAuthorize. Coarse-grained authz already happened at the proxy.
     @GetMapping("/{id}")
-    public Mono<Lead> get(@PathVariable UUID id, Principal principal) {
-        return leads.findOwned(id, UUID.fromString(principal.getName()));
+    public Mono<Lead> get(@PathVariable UUID id) {
+        return leads.findOwned(id);
     }
 }

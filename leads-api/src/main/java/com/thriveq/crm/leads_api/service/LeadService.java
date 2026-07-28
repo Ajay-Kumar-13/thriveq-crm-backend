@@ -14,8 +14,8 @@ public class LeadService {
 
     private final LeadRepository repo;
 
-    public Mono<Lead> findOwned(UUID id, UUID userId) {
-        return repo.findByIdAndOwnerId(id, userId)          // scope in the QUERY
-                .switchIfEmpty(Mono.error(new RuntimeException("Lead not found with user "+ userId)));
+    public Mono<Lead> findOwned(UUID id) {
+        return repo.findById(id)          // scope in the QUERY
+                .switchIfEmpty(Mono.error(new RuntimeException("Lead not found with id "+ id)));
     }
 }

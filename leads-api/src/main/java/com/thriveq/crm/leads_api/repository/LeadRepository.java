@@ -9,5 +9,4 @@ import java.util.UUID;
 
 @Repository
 public interface LeadRepository extends R2dbcRepository<Lead, UUID> {
-    Mono<Lead> findByIdAndOwnerId(UUID id, UUID ownerId);
 }
