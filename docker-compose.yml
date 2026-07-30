@@ -15,7 +15,7 @@ services:
       retries: 10
 
   envoy:
-    image: envoyproxy/envoy:v1.31-latest
+    image: envoyproxy/envoy:v1.39-latest
     ports: 
       - "8080:8080"
     volumes:

@@ -64,7 +64,7 @@ static_resources:
               http_service:
                 server_uri:
                   uri: http://authz-service:9000
-                  cluster: authz_service
+                  cluster: authz_cluster
                   timeout: 0.5s
                 path_prefix: "/authz"
                 authorization_request:
@@ -115,9 +115,9 @@ static_resources:
                         max_tokens: 5
                         tokens_per_fill: 5
                         fill_interval: 60s
-                  rate_limits:
-                  - actions:
-                    - remote_address: {}
+                    rate_limits:
+                    - actions:
+                      - remote_address: {}
 
               # ── everything else ──
               - match: { prefix: "/" }
