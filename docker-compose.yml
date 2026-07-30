@@ -13,6 +13,14 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  envoy:
+    image: envoyproxy/envoy:v1.31-latest
+    ports: 
+      - "8080:8080"
+    volumes:
+      - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml:ro
+      - ./certs/jwks.json:/etc/envoy/jwks.json:ro
 volumes:
   pgdata:
 
