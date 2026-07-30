@@ -34,8 +34,8 @@ public class ExtAuthzController {
     @RequestMapping("/authz/**")
     public Mono<ResponseEntity<Void>> check(ServerWebExchange request) {
 
-        String method = header(request, "x-forwarded-method");
-        String rawPath = header(request, "x-forwarded-uri");
+        String method = request.getRequest().getMethod().name();
+        String rawPath = request.getRequest().getURI().getRawPath();
         String rid = header(request, "x-request-id");
 
         String path = rawPath == null ? "/" : rawPath.split("\\?", 2)[0];
