@@ -63,7 +63,7 @@ static_resources:
                 code: ServiceUnavailable
               http_service:
                 server_uri:
-                  uri: http://authz-service:9000
+                  uri: http://external-authorization:9000
                   cluster: authz_cluster
                   timeout: 0.5s
                 path_prefix: "/authz"

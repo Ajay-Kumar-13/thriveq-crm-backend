@@ -15,6 +15,6 @@ spring:
     password: ${DB_PASSWORD}
 
 jwt:
-  public-key-path: ${JWT_PRIVATE_KEY_PATH:/home/ajay-kumar/Desktop/CRM/crm/certs/jwt-public.pem}
+  public-key-path: ${JWT_PUBLIC_KEY_PATH:/home/ajay-kumar/Desktop/CRM/crm/certs/jwt-public.pem}
   issuer: crm-auth
   audience: crm-api
