@@ -25,7 +25,6 @@ public class LeadController {
                 "x-user-roles", String.valueOf(exchange.getRequest().getHeaders().getFirst("x-user-roles"))));
     }
 
-    // No @PreAuthorize. Coarse-grained authz already happened at the proxy.
     @GetMapping("/{id}")
     public Mono<Lead> get(@PathVariable UUID id) {
         return leads.findOwned(id);
