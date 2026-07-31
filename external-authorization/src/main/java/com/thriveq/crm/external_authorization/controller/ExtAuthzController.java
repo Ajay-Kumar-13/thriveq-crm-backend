@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -31,15 +32,15 @@ public class ExtAuthzController {
      * 2. @RequestMapping matches all the methods, GET, POST, PUT, PATCH, DELETE
      * */
     @RequestMapping("/authz/**")
-    public Mono<ResponseEntity<Void>> check(ServerHttpRequest request) {
+    public Mono<ResponseEntity<Void>> check(ServerWebExchange request) {
 
-        String method = header(request, "x-forwarded-method");
-        String rawPath = header(request, "x-forwarded-uri");
+        String method = request.getRequest().getMethod().name();
+        String rawPath = request.getRequest().getURI().getRawPath();
         String rid = header(request, "x-request-id");
+        
+        String path = rawPath == null ? "/" : rawPath.replaceFirst("^/authz", "").split("\\?", 2)[0];
 
-        String path = rawPath == null ? "/" : rawPath.split("\\?", 2)[0];
-
-        String auth = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        String auth = request.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (auth == null || !auth.startsWith("Bearer ")) {
             log.info("DENY rid={} reason=no_access_token path={}", rid, path);
             return Mono.just(status(401));
@@ -79,8 +80,8 @@ public class ExtAuthzController {
 
     }
 
-    private static String header(ServerHttpRequest r, String name) {
-        return r.getHeaders().getFirst(name);
+    private static String header(ServerWebExchange r, String name) {
+        return r.getRequest().getHeaders().getFirst(name);
     }
 
     private static ResponseEntity<Void> status(int code) {

@@ -13,6 +13,52 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  auth-service:
+    build: ./auth-service
+    environment:
+      DB_HOST: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_PRIVATE_KEY_PATH: /certs/jwt-private-pkcs8.pem
+      JAVA_TOOL_OPTIONS: "-Xmx256m -XX:MaxMetaspaceSize=128m"
+    volumes:
+      - ./certs/jwt-private-pkcs8.pem:/certs/jwt-private-pkcs8.pem:ro     # ONLY this service
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  
+  external-authorization:
+    build: ./external-authorization
+    environment:
+      DB_HOST: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_PUBLIC_KEY_PATH: /certs/jwt-public.pem
+      JAVA_TOOL_OPTIONS: "-Xmx256m -XX:MaxMetaspaceSize=128m"
+    volumes:
+      - ./certs/jwt-public.pem:/certs/jwt-public.pem:ro
+    depends_on:
+      postgres:     { condition: service_healthy }
+      auth-service: { condition: service_started }            # Flyway runs there
+
+  leads-api:
+    build: ./leads-api
+    environment:
+      DB_HOST: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      JAVA_TOOL_OPTIONS: "-Xmx256m -XX:MaxMetaspaceSize=128m"
+    depends_on:
+      postgres:     { condition: service_healthy }
+      auth-service: { condition: service_started }
+
+
+  envoy:
+    image: envoyproxy/envoy:v1.39-latest
+    ports: 
+      - "8080:8080"
+    volumes:
+      - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml:ro
+      - ./certs/jwks.json:/etc/envoy/jwks.json:ro
+    depends_on: [external-authorization, leads-api, auth-service]
 volumes:
   pgdata:
 

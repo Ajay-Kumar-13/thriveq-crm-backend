@@ -1,0 +1,9 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: leads-api
+  r2dbc:
+    url: r2dbc:postgresql://${DB_HOST:localhost}:5432/crm?schema=crm
+    username: ${DB_USER:crm}
+    password: ${DB_PASSWORD}
