@@ -37,8 +37,8 @@ public class ExtAuthzController {
         String method = request.getRequest().getMethod().name();
         String rawPath = request.getRequest().getURI().getRawPath();
         String rid = header(request, "x-request-id");
-
-        String path = rawPath == null ? "/" : rawPath.split("\\?", 2)[0];
+        
+        String path = rawPath == null ? "/" : rawPath.replaceFirst("^/authz", "").split("\\?", 2)[0];
 
         String auth = request.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (auth == null || !auth.startsWith("Bearer ")) {
