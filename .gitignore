@@ -10,3 +10,4 @@ certs/
 # gradle / build
 .gradle/
 build/
+.terraform/
