@@ -58,7 +58,17 @@ resource "aws_security_group" "crm" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${chomp(data.http.my_ip.response_body)}/32"]
+    cidr_blocks      = strcontains(data.http.my_ip.response_body, ":") ? [] : ["${chomp(data.http.my_ip.response_body)}/32"]
+    ipv6_cidr_blocks = strcontains(data.http.my_ip.response_body, ":") ? ["${chomp(data.http.my_ip.response_body)}/128"] : []
+  }
+
+  ingress {
+    description = "Envoy from my IP"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks      = strcontains(data.http.my_ip.response_body, ":") ? [] : ["${chomp(data.http.my_ip.response_body)}/32"]
+    ipv6_cidr_blocks = strcontains(data.http.my_ip.response_body, ":") ? ["${chomp(data.http.my_ip.response_body)}/128"] : []
   }
 
   # all outbound traffic
@@ -66,7 +76,8 @@ resource "aws_security_group" "crm" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
   
   tags = {

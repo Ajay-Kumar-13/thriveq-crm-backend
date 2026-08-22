@@ -5,7 +5,7 @@ output "public_ip" {
 
 output "ssh_command" {
     description = "The SSH command to connect to the instance"
-    value       = "ssh -i ~/certs/${var.key_name}.pem ec2-user@${aws_instance.crm.public_ip}"
+    value       = "ssh -i certs/${var.key_name}.pem ec2-user@${aws_instance.crm.public_ip}"
 }
 
 output "envoy_url" {
