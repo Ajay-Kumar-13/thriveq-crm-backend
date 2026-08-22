@@ -15,11 +15,6 @@ variable "key_name" {
     type        = string
 }
 
-variable "my_ip" {
-    description = "Your public IP in CIDR form, e.g. 1.2.3.4/32 — locks the SG to you"
-    type        = string
-}
-
 variable "project" {
     description = "Tag prefix for the project"
     type        = string

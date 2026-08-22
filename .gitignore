@@ -10,4 +10,31 @@ certs/
 # gradle / build
 .gradle/
 build/
+# Local secret files (CRITICAL: Never commit these)
+*.tfvars
+*.tfvars.json
+*.pem
+*.pkrvars.hcl
+
+# Terraform state files (Contains raw secrets and plain-text passwords)
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+# Crash logs
+*.log
+
+# Terraform execution directory (Contains downloaded provider binaries)
 .terraform/
+.terraform.lock.hcl
+
+# Override files (Local development tweaks)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI configuration file
+.terraformrc
+terraform.rc
