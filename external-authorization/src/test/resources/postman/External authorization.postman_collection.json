@@ -1,0 +1,45 @@
+{
+  "info": {
+    "_postman_id": "e209745a-672d-4d6a-af84-8e47439c0a7a",
+    "name": "External authorization",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50448566",
+    "_collection_link": "https://go.postman.co/collection/50448566-e209745a-672d-4d6a-af84-8e47439c0a7a?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "With bearer token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer_token_155f}}"
+          }
+        ],
+        "url": {
+          "raw": "{{domain}}/authz/api/leads",
+          "host": [
+            "{{domain}}"
+          ],
+          "path": [
+            "authz",
+            "api",
+            "leads"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "bearer_token_14p3",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_155f",
+      "secret": true
+    }
+  ]
+}
