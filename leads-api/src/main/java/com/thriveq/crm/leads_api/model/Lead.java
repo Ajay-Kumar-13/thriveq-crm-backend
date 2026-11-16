@@ -12,15 +12,15 @@ import java.util.UUID;
 @Data
 public class Lead {
     @Id
-    private UUID id;
+    private Long id;
 
     private String name;
     private String company;
     private String email;
     private String stage;
 
-    @Column("order_id")
-    private String orderId;
+    @Column("owner_id")
+    private UUID owner_id;
 
     @Column("created_at")
     private Instant createdAt;

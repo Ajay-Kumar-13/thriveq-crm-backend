@@ -5,11 +5,11 @@ import com.thriveq.crm.leads_api.service.LeadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
+import com.thriveq.crm.leads_api.dto.NewLead;
 import reactor.core.publisher.Mono;
 
 import java.security.Principal;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/leads")
@@ -26,7 +26,12 @@ public class LeadController {
     }
 
     @GetMapping("/{id}")
-    public Mono<Lead> get(@PathVariable UUID id) {
+    public Mono<Lead> get(@PathVariable Long id) {
         return leads.findOwned(id);
+    }
+
+    @PostMapping
+    public Mono<Lead> create(@RequestBody NewLead newLead) {
+        return leads.create(newLead);
     }
 }

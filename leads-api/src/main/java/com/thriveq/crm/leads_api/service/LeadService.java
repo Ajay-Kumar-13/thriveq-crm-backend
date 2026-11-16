@@ -6,16 +6,27 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class LeadService {
 
     private final LeadRepository repo;
 
-    public Mono<Lead> findOwned(UUID id) {
+    public Mono<Lead> findOwned(Long id) {
         return repo.findById(id)          // scope in the QUERY
                 .switchIfEmpty(Mono.error(new RuntimeException("Lead not found with id "+ id)));
+    }
+
+    public Mono<Lead> create(com.thriveq.crm.leads_api.dto.NewLead newLead) {
+        Lead lead = new Lead();
+        lead.setName(newLead.getName());
+        lead.setCompany(newLead.getCompany());
+        lead.setEmail(newLead.getEmail());
+        lead.setStage(newLead.getStage());
+        lead.setOwner_id(newLead.getOwner_id());
+
+        return repo.save(lead)
+            .flatMap(saved -> repo.findById(saved.getId())
+                .switchIfEmpty(Mono.just(saved)));
     }
 }
