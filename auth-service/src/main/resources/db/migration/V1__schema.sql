@@ -40,7 +40,7 @@ CREATE TABLE auth.role_permissions (
 -- ─────────── crm: owned by leads-api ───────────
 
 CREATE TABLE crm.leads (
-    id         BIGSERIAL PRIMARY KEY,
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name       TEXT NOT NULL,
     company    TEXT,
     email      TEXT,
@@ -49,4 +49,11 @@ CREATE TABLE crm.leads (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_leads_owner ON crm.leads(owner_id);
+
+CREATE TABLE crm.comments (
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    lead_id    UUID NOT NULL REFERENCES crm.leads(id) ON DELETE CASCADE,
+    author_id  UUID NOT NULL,          -- deliberately NOT a FK across schemas
+    content    TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

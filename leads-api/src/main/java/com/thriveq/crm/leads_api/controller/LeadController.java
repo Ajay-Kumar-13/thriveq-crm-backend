@@ -1,15 +1,18 @@
 package com.thriveq.crm.leads_api.controller;
 
 import com.thriveq.crm.leads_api.model.Lead;
+import com.thriveq.crm.leads_api.service.CommentService;
 import com.thriveq.crm.leads_api.service.LeadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
-import com.thriveq.crm.leads_api.dto.NewLead;
+import com.thriveq.crm.leads_api.dto.CreateLeadRequest;
+import com.thriveq.crm.leads_api.dto.LeadsResponse;
+
 import reactor.core.publisher.Mono;
 
-import java.security.Principal;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/leads")
@@ -17,6 +20,7 @@ import java.util.Map;
 public class LeadController {
 
     private final LeadService leads;
+    private final CommentService comments;
 
     @GetMapping("/whoami")
     public Mono<Map<String, String>> whoami(ServerWebExchange exchange) {
@@ -26,12 +30,22 @@ public class LeadController {
     }
 
     @GetMapping("/{id}")
-    public Mono<Lead> get(@PathVariable Long id) {
+    public Mono<Lead> get(@PathVariable UUID id) {
         return leads.findOwned(id);
     }
 
     @PostMapping
-    public Mono<Lead> create(@RequestBody NewLead newLead) {
-        return leads.create(newLead);
+    public Mono<LeadsResponse> create(@RequestBody CreateLeadRequest newLead) {
+        return leads.create(newLead)
+                .flatMap(lead -> comments.getCommentsByLeadId(lead.getId())
+                        .map(commentsList -> new LeadsResponse(
+                                lead.getName(),
+                                lead.getCompany(),
+                                lead.getEmail(),
+                                lead.getStage(),
+                                String.valueOf(lead.getOwner_id()),
+                                String.valueOf(lead.getCreatedAt()),
+                                commentsList
+                        )));
     }
 }
