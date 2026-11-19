@@ -30,22 +30,33 @@ public class LeadController {
     }
 
     @GetMapping("/{id}")
-    public Mono<Lead> get(@PathVariable UUID id) {
-        return leads.findOwned(id);
+    public Mono<LeadsResponse> get(@PathVariable UUID id) {
+        return leads.findOwned(id)
+            .flatMap(lead -> comments.getCommentsByLeadId(lead.getId())
+            .map(commentsList -> new LeadsResponse(
+                    lead.getId(),
+                    lead.getName(),
+                    lead.getCompany(),
+                    lead.getEmail(),
+                    lead.getStage(),
+                    String.valueOf(lead.getOwner_id()),
+                    String.valueOf(lead.getCreatedAt()),
+                    commentsList
+            )));
     }
 
     @PostMapping
     public Mono<LeadsResponse> create(@RequestBody CreateLeadRequest newLead) {
         return leads.create(newLead)
-                .flatMap(lead -> comments.getCommentsByLeadId(lead.getId())
-                        .map(commentsList -> new LeadsResponse(
-                                lead.getName(),
-                                lead.getCompany(),
-                                lead.getEmail(),
-                                lead.getStage(),
-                                String.valueOf(lead.getOwner_id()),
-                                String.valueOf(lead.getCreatedAt()),
-                                commentsList
-                        )));
+                .map(lead -> new LeadsResponse(
+                        lead.getId(),
+                        lead.getName(),
+                        lead.getCompany(),
+                        lead.getEmail(),
+                        lead.getStage(),
+                        String.valueOf(lead.getOwner_id()),
+                        String.valueOf(lead.getCreatedAt()),
+                        null
+                ));
     }
 }

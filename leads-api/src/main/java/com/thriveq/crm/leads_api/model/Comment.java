@@ -1,5 +1,6 @@
 package com.thriveq.crm.leads_api.model;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
@@ -23,6 +24,6 @@ public class Comment {
     private String content;
 
     @Column("created_at")
-    private String createdAt;
+    private Instant createdAt;
 
 }
