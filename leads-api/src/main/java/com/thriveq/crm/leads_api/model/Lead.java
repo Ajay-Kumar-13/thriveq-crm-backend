@@ -19,8 +19,8 @@ public class Lead {
     private String email;
     private String stage;
 
-    @Column("order_id")
-    private String orderId;
+    @Column("owner_id")
+    private UUID owner_id;
 
     @Column("created_at")
     private Instant createdAt;
