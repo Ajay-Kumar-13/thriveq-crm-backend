@@ -35,4 +35,9 @@ public class LeadController {
     public Mono<LeadsResponse> create(@RequestBody CreateLeadRequest newLead) {
         return leads.create(newLead);
     }
+
+    @PatchMapping("/{id}")
+    public Mono<LeadsResponse> update(@PathVariable UUID id, @RequestBody CreateLeadRequest updatedLead) {
+        return leads.updateLead(id, updatedLead);
+    }
 }

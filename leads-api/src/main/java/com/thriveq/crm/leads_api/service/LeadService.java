@@ -15,11 +15,11 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class LeadService {
 
-    private final LeadRepository repo;
+    private final LeadRepository leads;
     private final CommentService comments;
 
     public Mono<LeadsResponse> findLeadById(UUID id) {
-        return repo.findById(id)         
+        return leads.findById(id)         
             .flatMap(lead -> comments.getCommentsByLeadId(lead.getId())
             .map(commentsList -> new LeadsResponse(
                     lead.getId(),
@@ -41,17 +41,20 @@ public class LeadService {
         lead.setStage(newLead.stage());
         lead.setOwner_id(newLead.owner_id());
 
-        return repo.save(lead)
-            .flatMap(saved -> repo.findById(saved.getId()))
-            .map(l -> new LeadsResponse(
-                    l.getId(),
-                    l.getName(),
-                    l.getCompany(),
-                    l.getEmail(),
-                    l.getStage(),
-                    String.valueOf(l.getOwner_id()),
-                    String.valueOf(l.getCreatedAt()),
-                    null
-            ));
+        return leads.save(lead)
+            .flatMap(saved -> findLeadById(saved.getId()));
+    }
+
+    public Mono<LeadsResponse> updateLead(UUID id, CreateLeadRequest updatedLead) {
+        return leads.findById(id)
+            .flatMap(existingLead -> {
+                existingLead.setName(updatedLead.name());
+                existingLead.setCompany(updatedLead.company());
+                existingLead.setEmail(updatedLead.email());
+                existingLead.setStage(updatedLead.stage());
+                existingLead.setOwner_id(updatedLead.owner_id());
+                return leads.save(existingLead);
+            })
+            .flatMap(saved -> findLeadById(saved.getId()));
     }
 }

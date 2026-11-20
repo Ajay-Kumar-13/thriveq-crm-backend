@@ -1,0 +1,2 @@
+ALTER TABLE crm.leads 
+ALTER COLUMN owner_id DROP NOT NULL;
