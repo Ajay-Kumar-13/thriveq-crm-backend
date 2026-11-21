@@ -26,6 +26,10 @@ dependencies {
     annotationProcessor ("org.projectlombok:lombok:1.18.34")
     implementation ("org.springframework.boot:spring-boot-starter-data-r2dbc")
     runtimeOnly   ("org.postgresql:r2dbc-postgresql")
+
+	// Kafka
+	implementation("org.springframework.boot:spring-boot-starter-kafka")
+	implementation("com.fasterxml.jackson.core:jackson-databind")
 }
 
 tasks.withType<Test> {

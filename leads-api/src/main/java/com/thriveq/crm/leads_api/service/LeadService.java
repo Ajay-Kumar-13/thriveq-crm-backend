@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -17,8 +19,10 @@ public class LeadService {
 
     private final LeadRepository leads;
     private final CommentService comments;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     public Mono<LeadsResponse> findLeadById(UUID id) {
+        kafkaTemplate.send("lead-events", "Lead with ID " + id + " was accessed.");
         return leads.findById(id)         
             .flatMap(lead -> comments.getCommentsByLeadId(lead.getId())
             .map(commentsList -> new LeadsResponse(
@@ -56,5 +60,11 @@ public class LeadService {
                 return leads.save(existingLead);
             })
             .flatMap(saved -> findLeadById(saved.getId()));
+    }
+
+    @KafkaListener (topics = "lead-events", groupId = "leads-activity")
+    public void handleLeadEvent(String leadEvent) {
+        // Handle the lead event here
+        System.out.println("Received lead event: " + leadEvent);
     }
 }
