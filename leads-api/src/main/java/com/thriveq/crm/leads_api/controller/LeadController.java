@@ -1,7 +1,5 @@
 package com.thriveq.crm.leads_api.controller;
 
-import com.thriveq.crm.leads_api.model.Lead;
-import com.thriveq.crm.leads_api.service.CommentService;
 import com.thriveq.crm.leads_api.service.LeadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +18,6 @@ import java.util.UUID;
 public class LeadController {
 
     private final LeadService leads;
-    private final CommentService comments;
 
     @GetMapping("/whoami")
     public Mono<Map<String, String>> whoami(ServerWebExchange exchange) {
@@ -31,32 +28,16 @@ public class LeadController {
 
     @GetMapping("/{id}")
     public Mono<LeadsResponse> get(@PathVariable UUID id) {
-        return leads.findOwned(id)
-            .flatMap(lead -> comments.getCommentsByLeadId(lead.getId())
-            .map(commentsList -> new LeadsResponse(
-                    lead.getId(),
-                    lead.getName(),
-                    lead.getCompany(),
-                    lead.getEmail(),
-                    lead.getStage(),
-                    String.valueOf(lead.getOwner_id()),
-                    String.valueOf(lead.getCreatedAt()),
-                    commentsList
-            )));
+        return leads.findLeadById(id);
     }
 
     @PostMapping
     public Mono<LeadsResponse> create(@RequestBody CreateLeadRequest newLead) {
-        return leads.create(newLead)
-                .map(lead -> new LeadsResponse(
-                        lead.getId(),
-                        lead.getName(),
-                        lead.getCompany(),
-                        lead.getEmail(),
-                        lead.getStage(),
-                        String.valueOf(lead.getOwner_id()),
-                        String.valueOf(lead.getCreatedAt()),
-                        null
-                ));
+        return leads.create(newLead);
+    }
+
+    @PatchMapping("/{id}")
+    public Mono<LeadsResponse> update(@PathVariable UUID id, @RequestBody CreateLeadRequest updatedLead) {
+        return leads.updateLead(id, updatedLead);
     }
 }

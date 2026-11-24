@@ -7,3 +7,21 @@ spring:
     url: r2dbc:postgresql://${DB_HOST:localhost}:5432/crm?schema=crm
     username: ${DB_USER:crm}
     password: ${DB_PASSWORD}
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    producer:
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true
+
+    consumer:
+      group-id: leads-activity
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.thriveq.crm.leads_api.dto"
