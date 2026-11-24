@@ -45,7 +45,7 @@ CREATE TABLE crm.leads (
     company    TEXT,
     email      TEXT,
     stage      TEXT NOT NULL DEFAULT 'NEW',
-    owner_id   UUID NOT NULL,          -- deliberately NOT a FK across schemas
+    owner_id   UUID,          -- deliberately NOT a FK across schemas
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -57,3 +57,12 @@ CREATE TABLE crm.comments (
     content    TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE TABLE crm.lead_activities (
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id   UUID NOT NULL,
+    lead_id    UUID NOT NULL REFERENCES crm.leads(id) ON DELETE CASCADE,
+    author_id  UUID NOT NULL,          -- deliberately NOT a FK across schemas
+    changes JSONB NOT NULL DEFAULT '{}'::JSONB,
+    occurred_at TIMESTAMPTZ NOT NULL DEFAULT now()
+)
