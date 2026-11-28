@@ -32,12 +32,12 @@ public class LeadController {
     }
 
     @PostMapping
-    public Mono<LeadsResponse> create(@RequestBody CreateLeadRequest newLead) {
-        return leads.create(newLead);
+    public Mono<Void> create(@RequestBody CreateLeadRequest newLead) {
+        return leads.createLeadAndSavePayloadInOutbox(newLead);
     }
 
     @PatchMapping("/{id}")
-    public Mono<LeadsResponse> update(@PathVariable UUID id, @RequestBody CreateLeadRequest updatedLead) {
-        return leads.updateLead(id, updatedLead);
+    public Mono<Void> update(@PathVariable UUID id, @RequestBody CreateLeadRequest updatedLead) {
+        return leads.updateLeadAndSavePayloadInOutbox(id, updatedLead);
     }
 }

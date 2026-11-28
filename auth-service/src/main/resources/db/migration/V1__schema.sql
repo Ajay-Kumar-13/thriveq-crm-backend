@@ -65,4 +65,12 @@ CREATE TABLE crm.lead_activities (
     author_id  UUID NOT NULL,          -- deliberately NOT a FK across schemas
     changes JSONB NOT NULL DEFAULT '{}'::JSONB,
     occurred_at TIMESTAMPTZ NOT NULL DEFAULT now()
-)
+);
+
+CREATE TABLE crm.outbox (
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    payload    JSONB NOT NULL,
+    aggregateid UUID NOT NULL,
+    aggregatetype TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

@@ -5,17 +5,24 @@ import com.thriveq.crm.leads_api.dto.CreateLeadRequest;
 import com.thriveq.crm.leads_api.dto.LeadEvent;
 import com.thriveq.crm.leads_api.dto.LeadsResponse;
 import com.thriveq.crm.leads_api.model.Lead;
+import com.thriveq.crm.leads_api.model.Outbox;
 import com.thriveq.crm.leads_api.repository.LeadRepository;
+import com.thriveq.crm.leads_api.repository.OutBoxRepository;
+
+import io.r2dbc.postgresql.codec.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import reactor.core.publisher.Mono;
+
+import tools.jackson.databind.json.JsonMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -23,9 +30,10 @@ import reactor.core.publisher.Mono;
 public class LeadService {
 
     private final LeadRepository leads;
+    private final OutBoxRepository outbox;
     private final CommentService comments;
-    private final LeadActivityService leadActivityService;
     private final KafkaTemplate<String, LeadEvent> kafkaTemplate;
+    private final JsonMapper jsonMapper;
 
     public Mono<LeadsResponse> findLeadById(UUID id) {
         return leads.findById(id)         
@@ -42,7 +50,8 @@ public class LeadService {
             )));
     }
 
-    public Mono<LeadsResponse> create(CreateLeadRequest newLead) {
+    @Transactional 
+    public Mono<Void> createLeadAndSavePayloadInOutbox(CreateLeadRequest newLead) {
         Lead lead = new Lead();
         lead.setName(newLead.name());
         lead.setCompany(newLead.company());
@@ -51,8 +60,8 @@ public class LeadService {
         lead.setOwner_id(newLead.owner_id());
 
         return leads.save(lead)
-            .doOnSuccess(savedLead -> {
-                LeadEvent leadEvent = new LeadEvent(
+            .flatMap(savedLead -> {
+                LeadEvent payload = new LeadEvent(
                     UUID.randomUUID(),
                     Events.LEAD_CREATED,
                     java.time.Instant.now(),
@@ -66,13 +75,20 @@ public class LeadService {
                     ),
                     null // No changes for creation
                 );
-                kafkaTemplate.send("lead-events", leadEvent);
+
+                Outbox event = new Outbox();
+                event.setAggregateid(savedLead.getId());
+                event.setAggregatetype("lead-events");
+                event.setPayload(Json.of(jsonMapper.writeValueAsString(payload)));
+
+                return outbox.save(event);
             })
-            .flatMap(saved -> findLeadById(saved.getId()));
+            .then();
     }
 
-    public Mono<LeadsResponse> updateLead(UUID id, CreateLeadRequest updatedLead) {
-        return leads.findById(id)
+    @Transactional 
+    public Mono<Void> updateLeadAndSavePayloadInOutbox(UUID id, CreateLeadRequest updatedLead) {
+         return leads.findById(id)
             .flatMap(existingLead -> {
                 Map<String, LeadEvent.FieldChange> changes = calculateChanges(existingLead, updatedLead);
                 existingLead.setName(updatedLead.name());
@@ -80,29 +96,31 @@ public class LeadService {
                 existingLead.setEmail(updatedLead.email());
                 existingLead.setStage(updatedLead.stage());
                 existingLead.setOwner_id(updatedLead.owner_id());
-                return Mono.just(changes).zipWith(leads.save(existingLead));
-            })
-            .doOnSuccess(zip -> {
-                Map<String, LeadEvent.FieldChange> changes = zip.getT1();
-                Lead savedLead = zip.getT2();
+                return leads.save(existingLead)
+                    .map(savedLead -> {
+                        LeadEvent payload = new LeadEvent(
+                            UUID.randomUUID(),
+                            Events.LEAD_UPDATED,
+                            java.time.Instant.now(),
+                            savedLead.getId(),
+                            new LeadEvent.LeadSnapshot(
+                                savedLead.getName(),
+                                savedLead.getCompany(),
+                                savedLead.getEmail(),
+                                savedLead.getStage(),
+                                savedLead.getOwner_id()
+                            ),
+                            changes 
+                        );
+                        Outbox event = new Outbox();
+                        event.setAggregateid(savedLead.getId());
+                        event.setAggregatetype("lead-events");
+                        event.setPayload(Json.of(jsonMapper.writeValueAsString(payload)));
 
-                LeadEvent leadEvent = new LeadEvent(
-                    UUID.randomUUID(),
-                    Events.LEAD_UPDATED,
-                    java.time.Instant.now(),
-                    savedLead.getId(),
-                    new LeadEvent.LeadSnapshot(
-                        savedLead.getName(),
-                        savedLead.getCompany(),
-                        savedLead.getEmail(),
-                        savedLead.getStage(),
-                        savedLead.getOwner_id()
-                    ),
-                    changes 
-                );
-                kafkaTemplate.send("lead-events", leadEvent);
+                        return outbox.save(event);
+                    });
             })
-            .flatMap(zip -> findLeadById(zip.getT2().getId()));
+            .then();
     }
 
     private Map<String, LeadEvent.FieldChange> calculateChanges(Lead existingLead, CreateLeadRequest updatedLead) {
@@ -123,27 +141,5 @@ public class LeadService {
             changes.put("owner_id", new LeadEvent.FieldChange(existingLead.getOwner_id(), updatedLead.owner_id()));
         }
         return changes;
-    }
-
-    @KafkaListener (topics = "lead-events", groupId = "leads-activity")
-    public void handleLeadEvent(LeadEvent leadEvent) {
-        switch (leadEvent.eventType()) {
-            case Events.LEAD_CREATED:
-                log.info("Lead created: {}", leadEvent.leadId());
-                break;
-            case Events.LEAD_UPDATED:
-                log.info("Lead updated: {}", leadEvent.leadId());
-                leadActivityService.saveLeadActivity(leadEvent);
-                break;
-            case Events.LEAD_STAGE_CHANGED:
-                // Handle lead stage change event
-                break;
-            case Events.LEAD_DELETED:
-                // Handle lead deletion event
-                break;
-            default:
-                // Handle unknown event type
-                break;
-        }
     }
 }

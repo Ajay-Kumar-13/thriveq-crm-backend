@@ -25,3 +25,4 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "com.thriveq.crm.leads_api.dto"
+        spring.json.value.default.type: "com.thriveq.crm.leads_api.dto.LeadEvent"
