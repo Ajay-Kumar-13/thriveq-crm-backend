@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +31,6 @@ public class LeadService {
     private final LeadRepository leads;
     private final OutBoxRepository outbox;
     private final CommentService comments;
-    private final KafkaTemplate<String, LeadEvent> kafkaTemplate;
     private final JsonMapper jsonMapper;
 
     public Mono<LeadsResponse> findLeadById(UUID id) {
@@ -97,7 +95,7 @@ public class LeadService {
                 existingLead.setStage(updatedLead.stage());
                 existingLead.setOwner_id(updatedLead.owner_id());
                 return leads.save(existingLead)
-                    .map(savedLead -> {
+                    .flatMap(savedLead -> {
                         LeadEvent payload = new LeadEvent(
                             UUID.randomUUID(),
                             Events.LEAD_UPDATED,
